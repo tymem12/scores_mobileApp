@@ -1,5 +1,6 @@
 package com.example.mean_v1;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,9 +50,10 @@ public class SubjectAdapter extends RecyclerView.Adapter<SubjectAdapter.ViewHold
     public int getItemCount() {
         return subjects.size();
     }
-    public void updateSubjects(List<Subject> newSubjects) {
-        subjects.clear();
-        subjects.addAll(newSubjects);
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateSubjects() {
+        //subjects.clear();
+        //subjects.addAll(newSubjects);
         notifyDataSetChanged();
     }
 

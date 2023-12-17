@@ -1,5 +1,6 @@
 package com.example.mean_v1;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,9 +12,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 //import android.widget.Button;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SubjectAdapter subjectAdapter;
     private List<Subject> subjectList;
+    private Button button2;
 
     private void initDb() {
         ContentValues values = new ContentValues();
@@ -104,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
             Subject subject = new Subject(subject_str, totalScore, totalMaxScore);
             subjectList.add(subject);
 
-            // Use these values as needed, e.g., storing in a list or displaying
         }
         cursor.close();
     }
@@ -123,6 +126,17 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView_subjects = findViewById(R.id.RecyclerView_subjects);
         editText = findViewById(R.id.editText);
+        button2 = findViewById(R.id.button2);
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String new_subject = String.valueOf(editText.getText());
+                editText.setText("");
+                showFormDialog(new_subject);
+
+
+            }
+        });
 
         recyclerView_subjects.setLayoutManager(new LinearLayoutManager(this));
 
@@ -146,14 +160,50 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-
-
-
-
-
     }
 
+
+    private void showFormDialog(String new_subject) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.pop_up_form, null);
+        builder.setView(dialogView);
+
+        EditText editTextYourScore = dialogView.findViewById(R.id.editTextYourScore);
+        EditText editTextMaxScore = dialogView.findViewById(R.id.editTextMaxScore);
+        EditText editTextWeight = dialogView.findViewById(R.id.editTextWeight);
+
+        builder.setPositiveButton("Accept", (dialog, which) -> {
+            float yourScore = Float.parseFloat(editTextYourScore.getText().toString());
+            float maxScore = Float.parseFloat(editTextMaxScore.getText().toString());
+            float weight = Float.parseFloat(editTextWeight.getText().toString());
+
+            // Perform action with these values
+            Subject nSubject = new Subject(new_subject, yourScore * weight,maxScore * weight);
+            subjectList.add(nSubject);
+            addNewSubjectScore(new_subject, yourScore, maxScore, weight);
+            subjectAdapter.updateSubjects();
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private void addNewSubjectScore(String subjectName, float score, float maxScore, float weight) {
+        ContentValues values = new ContentValues();
+        values.put(AppContract.DictEntry.COLUMN_NAME_SUBJECT, subjectName);
+        values.put(AppContract.DictEntry.COLUMN_NAME_STUDENT_SCORE, score);
+        values.put(AppContract.DictEntry.COLUMN_NAME_MAX_SCORE, maxScore);
+        values.put(AppContract.DictEntry.COLUMN_NAME_WEIGHT, weight);
+
+        try {
+            db.insertOrThrow(AppContract.DictEntry.TABLE_NAME, null, values);
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error while adding subject score", e);
+            // Handle the exception, e.g., show a Toast to the user
+        }
+    }
     @Override
     protected void onDestroy(){
         super.onDestroy();

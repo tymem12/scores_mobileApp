@@ -1,8 +1,10 @@
 package com.example.mean_v1;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -53,9 +55,10 @@ public class ScoreAdapter extends RecyclerView.Adapter<ScoreAdapter.ViewHolder> 
     public int getItemCount() {
         return scores.size();
     }
-    public void updateSubjects(List<Score> newScores) {
-        scores.clear();
-        scores.addAll(newScores);
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateScores() {
+        //scores.clear();
+        //scores.addAll(newScores);
         notifyDataSetChanged();
     }
 

@@ -1,8 +1,10 @@
 package com.example.mean_v1;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +28,7 @@ public class ScoresActivity extends AppCompatActivity {
     private SQLiteDatabase db;
     private RecyclerView recyclerView;
     private Button button;
+    private String current_subject;
 
     private ScoreAdapter scoreAdapter;
 
@@ -70,12 +73,13 @@ public class ScoresActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         button = findViewById(R.id.button);
-        //button.setOnClickListener(v -> showFormDialog());
+        button.setOnClickListener(v -> showFormDialog());
 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         getAllScores(subjectName);
+        current_subject = subjectName;
         scoreAdapter = new ScoreAdapter(scoreList);
         recyclerView.setAdapter(scoreAdapter);
 
@@ -97,8 +101,10 @@ public class ScoresActivity extends AppCompatActivity {
             float maxScore = Float.parseFloat(editTextMaxScore.getText().toString());
             float weight = Float.parseFloat(editTextWeight.getText().toString());
 
-            // Perform action with these values
-            performAction(yourScore, maxScore, weight);
+            scoreList.add(new Score(yourScore,maxScore,weight));
+
+            addNewSubjectScore(yourScore, maxScore, weight);
+            scoreAdapter.updateScores();
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
@@ -107,8 +113,22 @@ public class ScoresActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void performAction(float yourScore, float maxScore, float weight) {
-        // Implement the action to be performed with the form values
+
+    private void addNewSubjectScore( float score, float maxScore, float weight) {
+        ContentValues values = new ContentValues();
+        values.put(AppContract.DictEntry.COLUMN_NAME_SUBJECT, current_subject);
+        values.put(AppContract.DictEntry.COLUMN_NAME_STUDENT_SCORE, score);
+        values.put(AppContract.DictEntry.COLUMN_NAME_MAX_SCORE, maxScore);
+        values.put(AppContract.DictEntry.COLUMN_NAME_WEIGHT, weight);
+
+        try {
+            db.insertOrThrow(AppContract.DictEntry.TABLE_NAME, null, values);
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error while adding subject score", e);
+            // Handle the exception, e.g., show a Toast to the user
+        }
     }
+
+
 
 }

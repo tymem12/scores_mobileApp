@@ -46,10 +46,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="28dp"
+        android:onClick="addSubject_Click"
         android:text="Button"
         app:layout_constraintBottom_toTopOf="@+id/RecyclerView_subjects"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView_appName"
-        app:layout_constraintVertical_bias="0.409" />
+        app:layout_constraintVertical_bias="0.279" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
